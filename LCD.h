@@ -14,7 +14,13 @@ void LCD_Clear(void);
 void LCD_DisplayString(uint8_t* ptr);
 void LCD_WriteChar(uint8_t* ch, bool point, bool colon, uint8_t position);
 static void LCD_Conv_Char_Seg(uint8_t* c,bool point,bool colon, uint8_t* digit);
-void LCD_Display_Name(void);
-void MS_to_MINSEC(uint32_t counter);
+
+void Joypad_Configure(void);
+void Joypad_Initilization(void);
+void LCD_Display_Car_Up(void);
+void LCD_Display_Car_Down(void);
+void LCD_Display_Car_Up_Full(void);
+void LCD_Display_Car_Down_Full(void);
+void LCD_Display_Obstacle(uint8_t* ptr);
 
 #endif /* __STM32L476G_DISCOVERY_LCD_H */

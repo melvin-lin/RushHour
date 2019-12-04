@@ -90,9 +90,6 @@ uint8_t BAR = 0;
 /* code for 'd' character */
 #define C_DMAP                ((uint16_t) 0xf300)
 
-/* code for 'b' character */
-#define C_BMAP                ((uint16_t) 0xb300)
-
 /* code for 'm' character */
 #define C_MMAP                ((uint16_t) 0xb210)
 
@@ -119,6 +116,12 @@ uint8_t BAR = 0;
 
 /* constant code for small o */
 #define C_PERCENT_2           ((uint16_t) 0xb300)
+
+/* constant code for b */
+#define C_PERCENT_3           ((uint16_t) 0xb310)
+
+/* constant code for p */
+#define C_PERCENT_4           ((uint16_t) 0xec04)
 
 #define C_FULL                ((uint16_t) 0xffdd)
 
@@ -149,9 +152,6 @@ void LCD_PIN_Init(void){
 	// Configure Port A Pins 6, 7, 8, 9, 10, 15 as Alternate Function Mode
 	GPIOA->MODER &= ~(0xC03FF000);
 	GPIOA->MODER |= 0x802AA000;
-
-	GPIOA->MODER &= ~(GPIO_MODER_MODER3);  
-	GPIOA->MODER &= ~(GPIO_MODER_MODER5);  
 	
 	// Configure Port A Pins 6, 7, 8, 9, 10, 15 as Alternate Function 11
 	GPIOA->AFR[0] &= ~(0xFF000000);
@@ -233,73 +233,75 @@ void LCD_Configure(void){
 	
 }
 
+void Joypad_Configure(void){
+	GPIOA->MODER &= ~(GPIO_MODER_MODER0);  // center
+	GPIOA->MODER &= ~(GPIO_MODER_MODER1);	 // left
+	GPIOA->MODER &= ~(GPIO_MODER_MODER2);  // right
+	GPIOA->MODER &= ~(GPIO_MODER_MODER3);  // up
+	GPIOA->MODER &= ~(GPIO_MODER_MODER5);  // down
+	
+	GPIOA->PUPDR &= ~(GPIO_PUPDR_PUPDR0);
+	GPIOA->PUPDR |= (GPIO_PUPDR_PUPDR0_1);
+	GPIOA->PUPDR &= ~(GPIO_PUPDR_PUPDR3);
+	GPIOA->PUPDR |= (GPIO_PUPDR_PUPDR3_1);
+	GPIOA->PUPDR &= ~(GPIO_PUPDR_PUPDR5);
+	GPIOA->PUPDR |= (GPIO_PUPDR_PUPDR5_1);
+}
+
 // LCD_DisplayString - M
 void LCD_DisplayString(uint8_t* ptr){
 	int i = 0;
 	while (*ptr) {
-		if (i == 1) {
-				LCD_WriteChar(ptr, 0, 1, i);
-		} else if (i == 3) {
-			LCD_WriteChar(ptr, 1, 0, i);
-		} else {
-			LCD_WriteChar(ptr, 0, 0, i);
-		}
+		LCD_WriteChar(ptr, 0, 0, i);
 		ptr++;
 		i++;
 	}
 }
 
-// LCD_Display_Car_Down - M
-void LCD_Display_Car_Down(void){
-	uint8_t car[] = "b"; 
-	//LCD_DisplayString(name);
-	
-	int i; 
-	//Testing with LCD_WriteChar
-	for (i = 0; i < 1; i++) {
-		//LCD_WriteChar(uint8_t* ch, bool point, bool colon, uint8_t position)
-		LCD_WriteChar(&car[i], 0, 0, i);
-	} 
+// LCD_DisplayObstacle - M
+void LCD_Display_Obstacle(uint8_t* ptr){
+	int i = 1;
+	while (*ptr) {
+		LCD_WriteChar(ptr, 0, 0, i);
+		ptr++;
+		i++;
+	}
 }
 
-// LCD_Display_Car_Up - M
+// LCD_Display_Car_Up
 void LCD_Display_Car_Up(void){
-	uint8_t car[] = "p"; 
-	//LCD_DisplayString(name);
-	
+	uint8_t car[] = "°"; 
 	int i; 
-	//Testing with LCD_WriteChar
 	for (i = 0; i < 1; i++) {
-		//LCD_WriteChar(uint8_t* ch, bool point, bool colon, uint8_t position)
 		LCD_WriteChar(&car[i], 0, 0, i);
-	} 
+	}
 }
 
-void MS_to_MINSEC(uint32_t counter) {
-	char min_2 = '0'; 
-	char min_1 = '0'; 
-	char sec_2 = '0';
-	char sec_1 = '0';
-	char ms_2 = '0';
-	char ms_1 = '0';
-	
-	sprintf(&min_2,"%d", (counter/600000)  % 6);			
-	sprintf(&min_1,"%d", (counter/60000) % 10); 
-	
-	sprintf(&sec_2,"%d", (counter/10000)  % 6);			
-	sprintf(&sec_1,"%d", (counter/1000) % 10); 
-	
-	sprintf(&ms_2,"%d", (counter/100)  % 10);			
-	sprintf(&ms_1,"%d", (counter/10) % 10); 
-	
-	uint8_t time[6] = "000000";
-	time[0] = min_2; 
-	time[1] = min_1; 
-	time[2] = sec_2;
-	time[3] = sec_1;
-	time[4] = ms_2; 
-	time[5] = ms_1; 
-	LCD_DisplayString(time);
+// LCD_Display_Car_Up_Full
+void LCD_Display_Car_Up_Full(void){
+	uint8_t car[] = "p"; 
+	int i; 
+	for (i = 0; i < 1; i++) {
+		LCD_WriteChar(&car[i], 0, 0, i);
+	}
+}
+
+// LCD_Display_Car_Down
+void LCD_Display_Car_Down(void){
+	uint8_t car[] = "%"; 
+	int i;
+	for (i = 0; i < 1; i++) {
+		LCD_WriteChar(&car[i], 0, 0, i);
+	}
+}
+
+// LCD_Display_Car_Down_Full
+void LCD_Display_Car_Down_Full(void){
+	uint8_t car[] = "b"; 
+	int i; 
+	for (i = 0; i < 1; i++) {
+		LCD_WriteChar(&car[i], 0, 0, i);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -313,6 +315,9 @@ void LCD_Initialization(void){
 	LCD_Clear();
 }
 
+void Joypad_Initilization(void){
+	Joypad_Configure();
+}
 
 void LCD_Clock_Init(void){
 	// Enable write access to Backup domain
@@ -432,10 +437,6 @@ static void LCD_Conv_Char_Seg(uint8_t* c, bool point, bool colon, uint8_t* digit
     case 'n' :
       ch = C_NMAP;
       break;
-		
-		case 'b' :
-      ch = C_BMAP;
-      break;
 
     case 'µ' :
       ch = C_UMAP;
@@ -459,6 +460,14 @@ static void LCD_Conv_Char_Seg(uint8_t* c, bool point, bool colon, uint8_t* digit
 		
     case '%' :
       ch = C_PERCENT_2; 
+      break;
+		
+		case 'b' :
+      ch = C_PERCENT_3; 
+      break;
+		
+		case 'p' :
+      ch = C_PERCENT_4; 
       break;
 		
     case 255 :
